@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="API Test Suite" parallel="methods" thread-count="3">
+    <test name="Regression Tests">
+        <parameter name="user-id" value="1"/>
+        <groups>
+            <define name="regression">
+                <include name="regression"/>
+            </define>
+            <define name="dataProvider">
+                <include name="regression"/>
+                <include name="dataProvider"/>
+            </define>
+            <run>
+                <include name="dataProvider"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.cdTester.restAssured.tests.user.UserApiTest"/>
+        </classes>
+    </test>
+</suite>
