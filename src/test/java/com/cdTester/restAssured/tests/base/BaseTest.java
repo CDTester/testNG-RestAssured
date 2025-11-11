@@ -4,9 +4,11 @@ import com.cdTester.restAssured.config.ConfigManager;
 import com.cdTester.restAssured.reporting.ExtentManager;
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
+import org.testng.ITestContext;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
 import org.testng.Assert;
+import org.testng.xml.XmlSuite;
 
 import java.lang.reflect.Method;
 import java.io.File;
@@ -15,31 +17,51 @@ public class BaseTest {
   protected static ExtentReports extent;
   protected static ThreadLocal<ExtentTest> test = new ThreadLocal<>();
   protected static ConfigManager config;
+  protected static XmlSuite suite;
+  protected static String fileName;
 
   @BeforeSuite(alwaysRun = true)
-  public void setUp() {
-    // Create test-output directory if it doesn't exist
+  public void setUpSuite() {
+    System.out.println("BeforeSuite executed");
+    // No ITestContext parameter - just basic setup
     File outputDir = new File("test-output");
     if (!outputDir.exists()) {
       outputDir.mkdirs();
     }
 
-    extent = ExtentManager.createInstance("test-output/extent-report.html");
-    System.out.println("ExtentReports initialized successfully");
+  }
+
+  @BeforeTest(alwaysRun = true)
+  public void setUpTest(ITestContext context) {
+    System.out.println("BeforeTest Called by " + context.getSuite().getName());
+    suite = context.getSuite().getXmlSuite();
+    System.out.println("BeforeTest updated suite with getXmlSuite");
+
+    if (extent == null) {  // ← Prevents duplicate initialization
+      extent = ExtentManager.createInstance(
+            "test-output/extent-report.html",
+            context.getSuite().getXmlSuite()
+      );
+      System.out.println("ExtentReports initialized successfully");
+    }
+
+    System.out.println("╔════════════════════════════════════════╗");
+    System.out.println("║  Suite: " + suite.getName());
+    System.out.println("║  Test: " + context.getCurrentXmlTest().getName());
+    System.out.println("║  Parallel: " + suite.getParallel());
+    System.out.println("║  Threads: " + suite.getThreadCount());
+    System.out.println("╚════════════════════════════════════════╝");
 
     config = ConfigManager.getInstance();
   }
 
   @BeforeMethod(alwaysRun = true)
-  public void beforeMethod(Method method) {
-    if (extent == null) {
-      setUp(); // Initialize if not already done
-    }
-
+  public void beforeMethod(Method method, ITestContext context) {
     String testName = method.getAnnotation(Test.class).description();
     String className = method.getDeclaringClass().getSimpleName();
 
     ExtentTest extentTest = extent.createTest(className + " - " + testName);
+
     test.set(extentTest);
 
     System.out.println("Starting test: " + testName);
@@ -53,17 +75,6 @@ public class BaseTest {
     String testName = method.getAnnotation(Test.class).description();
     System.out.println("Finished test: " + testName + ";  Result: " + test.get().getStatus() + "; Duration: " +  (result.getEndMillis() - result.getStartMillis())+ "ms");
 
-
-//    if (extentTest != null) {
-//      if (result.getStatus() == ITestResult.FAILURE) {
-//        extentTest.fail("Test Failed: " + result.getThrowable());
-//      } else if (result.getStatus() == ITestResult.SKIP) {
-//        extentTest.skip("Test Skipped: " + result.getThrowable());
-//      } else if (result.getStatus() == ITestResult.SUCCESS) {
-//        extentTest.pass("Test Passed");
-//      }
-//  }
-
     // Clean up ThreadLocal to prevent memory leaks
     test.remove();
   }
@@ -72,7 +83,11 @@ public class BaseTest {
   public void tearDown() {
     if (extent != null) {
       extent.flush();
-      System.out.println("ExtentReports report generated at: test-output/extent-report.html");
+
+      System.out.println("\n╔════════════════════════════════════════╗");
+      System.out.println("║  Suite Complete: " + suite.getName());
+      System.out.println("║  Report: test-output/extent-report.html");
+      System.out.println("╚════════════════════════════════════════╝");
     }
   }
 

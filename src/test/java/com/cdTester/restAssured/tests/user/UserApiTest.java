@@ -66,7 +66,7 @@ public class UserApiTest extends BaseTest {
     ExtentTest thenAnd2 = extentStep("AND the username should not be null");
     extentAssertNotNull(thenAnd2, user.getUsername(), "username: " + user.getUsername());
 
-    ExtentTest thenAnd3 = addToExtentReport().createNode("AND the email should not be null");
+    ExtentTest thenAnd3 = extentStep("AND the email should not be null");
     extentAssertNotNull(thenAnd3, user.getEmail(), "email: " + user.getEmail());
 
     ExtentTest thenAnd4 = extentStep("AND the user ID should match the requested ID");
@@ -104,7 +104,7 @@ public class UserApiTest extends BaseTest {
     ExtentTest thenAnd2 = extentStep("AND the username should be " + username);
     extentAssertEquals(thenAnd2, user.getUsername(), username, "Username not as expected");
 
-    ExtentTest thenAnd3 = addToExtentReport().createNode("AND the name should be " + name);
+    ExtentTest thenAnd3 = extentStep("AND the name should be " + name);
     extentAssertEquals(thenAnd3, user.getName(), name, "Name not as expected");
   }
 

@@ -1,28 +1,18 @@
-package com.cdTester.restAssured.utils;
+package testUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.testng.annotations.DataProvider;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class TestDataProvider {
+public class BaseTestDataProvider {
   private static final ObjectMapper objectMapper = new ObjectMapper();
 
-  @DataProvider(name = "userTestData")
-  public static Object[][] getUserTestData() throws IOException {
-    return loadTestData("src/test/resources/testdata/users.json");
-  }
-
-  @DataProvider(name = "productTestData")
-  public static Object[][] getProductTestData() throws IOException {
-    return loadTestData("src/test/resources/testdata/products.json");
-  }
-
-  private static Object[][] loadTestData(String filePath) throws IOException {
+  public static Object[][] loadTestData(String filePath) throws IOException {
     JsonNode rootNode = objectMapper.readTree(new File(filePath));
     List<Object[]> testData = new ArrayList<>();
 

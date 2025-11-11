@@ -4,19 +4,12 @@
     <test name="Regression Tests">
         <parameter name="user-id" value="1"/>
         <groups>
-            <define name="regression">
-                <include name="regression"/>
-            </define>
-            <define name="dataProvider">
-                <include name="regression"/>
-                <include name="dataProvider"/>
-            </define>
             <run>
                 <include name="dataProvider"/>
             </run>
         </groups>
         <classes>
-            <class name="com.cdTester.restAssured.tests.user.UserApiTest"/>
+            <class name="com.cdTester.restAssured.tests.user.UserApiDataProviderTest"/>
         </classes>
     </test>
 </suite>
