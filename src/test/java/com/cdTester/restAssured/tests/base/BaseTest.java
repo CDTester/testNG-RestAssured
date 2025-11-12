@@ -28,6 +28,7 @@ public class BaseTest {
     if (!outputDir.exists()) {
       outputDir.mkdirs();
     }
+    config = ConfigManager.getInstance();
 
   }
 
@@ -52,15 +53,15 @@ public class BaseTest {
     System.out.println("║  Threads: " + suite.getThreadCount());
     System.out.println("╚════════════════════════════════════════╝");
 
-    config = ConfigManager.getInstance();
   }
 
   @BeforeMethod(alwaysRun = true)
   public void beforeMethod(Method method, ITestContext context) {
     String testName = method.getAnnotation(Test.class).description();
     String className = method.getDeclaringClass().getSimpleName();
+    String testGroup = context.getCurrentXmlTest().getName();
 
-    ExtentTest extentTest = extent.createTest(className + " - " + testName);
+    ExtentTest extentTest = extent.createTest(testGroup + " - " + testName);
 
     test.set(extentTest);
 

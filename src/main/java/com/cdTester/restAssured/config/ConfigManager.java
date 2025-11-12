@@ -1,7 +1,10 @@
 package com.cdTester.restAssured.config;
 
+import java.awt.*;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 public class ConfigManager {
@@ -69,10 +72,29 @@ public class ConfigManager {
     return getProperty(api + ".timeout") == null ? 30 : Integer.parseInt(getProperty(api + ".timeout"));
   }
 
+  public Map<String,String> getHeaders(String api) {
+    Map<String,String> headers = new HashMap<>();
+    String headerPrefix = api + ".headers.";
+
+    // Iterate through all properties to find headers
+    for (String key : properties.stringPropertyNames()) {
+      if (key.startsWith(headerPrefix)) {
+        String headerName = key.substring(headerPrefix.length());
+        String headerValue = properties.getProperty(key);
+
+        headers.put(headerName, headerValue);
+      }
+    }
+    return headers;
+  }
+
+
+
   // Get environment name
   public String getEnvironment() {
     return getProperty("environment", "unknown");
   }
+
 
   // Print current configuration (for debugging)
   public void printCurrentConfig(String api) {

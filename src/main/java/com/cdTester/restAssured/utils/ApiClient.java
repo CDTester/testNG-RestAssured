@@ -5,6 +5,8 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import com.cdTester.restAssured.config.ConfigManager;
+
+import java.io.File;
 import java.util.Map;
 
 public class ApiClient {
@@ -26,38 +28,53 @@ public class ApiClient {
     RequestSpecification requestSpec = RestAssured.given()
           .contentType(ContentType.JSON)
           .header("Accept", "application/json");
-    request += "content-type: json\n<br/>Headers: Accept: application/json\n<br/>";
-    request += "Timeout: " + config.getTimeout(this.api) + "\n<br/>";
+    request += "Timeout: " + config.getTimeout(this.api) + "<br/>";
+    request += "content-type: json<br/>";
+    request += "Headers:<ul><li>Accept: application/json</li>";
+
+    Map<String, String> headers = config.getHeaders(this.api);
+    if (!headers.isEmpty()) {
+      for (String key: headers.keySet()) {
+        requestSpec.header(key, headers.get(key));
+        request += "<li>" + key + ": " + headers.get(key) + "\n</li>";
+      }
+    }
 
     String authType = config.getAuthType(this.api);
     String authKey = config.getAuthKey(this.api);
     if (authType != null) {
       if (authType.equals("X-API-Key")) {
-        requestSpec.header(authKey, authKey);
-        request += "X-API-Key: " + authKey + "\n<br/>";
+        requestSpec.header("X-API-Key", authKey);
+        request += "<li>X-API-Key: " + authKey + "</li>";
+        request += "</ul>";
       }
-      if (authType.equals("basic")) {
+      else if (authType.equals("basic")) {
         String userName = config.getUsername(this.api);
         String password = config.getPassword(this.api);
         requestSpec.auth().basic(userName, password);
-        request += "Authorization: Basic" + requestSpec.auth().toString() + "\n<br/>";
+        request += "</ul>";
+        request += "Authorization: Basic" + requestSpec.auth().toString() + "<br/>";
       }
-      if (authType.equals("bearer")) {
+      else if (authType.equals("bearer")) {
         requestSpec.header("Authorization", "Bearer " + authKey);
-        request += "Authorization: Bearer " + authKey + "\n<br/>";
+        request += "</ul>";
+        request += "Authorization: Bearer " + authKey + "<br/>";
+      }
+      else {
+        request += "</ul>";
       }
     }
     return requestSpec;
   }
 
   private void responseToString (Response resp) {
-    response = "Headers: \n<br/>" +
-          "<nbsp/><nbsp/>Date: " + resp.getHeader("Date") + "\n<br/>" +
-          "<nbsp/><nbsp/>Content-Type: " + resp.getContentType() + "\n<br/>" +
-          "Cookies: " + resp.cookies().toString() + "\n<br/>" +
-          "Status: " + resp.statusCode() + " " + resp.statusLine() + "\n<br/>" +
-          "Response Time: " + resp.getTime() + "ms\n<br/>" +
-          "Body: " + resp.getBody().asString() + "\n<br/>";
+    response = "Headers: <br/><ul>" +
+          "<li>Date: " + resp.getHeader("Date") + "</li>" +
+          "<li>Content-Type: " + resp.getContentType() + "</li></ul>" +
+          "Cookies: " + resp.cookies().toString() + "<br/>" +
+          "Status: " + resp.statusCode() + " " + resp.statusLine() + "<br/>" +
+          "Response Time: " + resp.getTime() + "ms<br/>" +
+          "Body: " + resp.getBody().asString() + "<br/>";
   }
 
   public Response get(String endpoint) {
@@ -113,6 +130,26 @@ public class ApiClient {
 
     return resp;
   }
+
+
+  public Response post(String endpoint, String multiFormData) {
+    request = "POST: " + RestAssured.baseURI + endpoint + "\n<br/>" +
+          "      Multiform:" + multiFormData + "\n<br/>";
+
+    Response resp = getRequestSpec()
+          .multiPart(new File(multiFormData))
+          .log().all()
+          .when()
+          .post(endpoint)
+          .then()
+          .extract()
+          .response();
+    responseToString(resp);
+
+
+    return resp;
+  }
+
 
   public Response put(String endpoint, Object body) {
     request = "PUT: " + RestAssured.baseURI + endpoint + "\n<br/>" +

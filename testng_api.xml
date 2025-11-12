@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
-<suite name="API Test Suite" parallel="tests" thread-count="3">
+<suite name="API Test Suite" parallel="methods" thread-count="3">
     <parameter name="build" value="1.0"/>
     <parameter name="reportName" value="API"/>
-    <test name="User API Tests" preserve-order="false">
+    <test name="User API Tests" preserve-order="true">
         <groups>
             <run>
                 <exclude name="broken.*"/>
@@ -13,7 +13,7 @@
             <class name="com.cdTester.restAssured.tests.user.UserApiTest"/>
         </classes>
     </test>
-    <test name="DataProvider User API Tests" preserve-order="false">
+    <test name="DataProvider User API Tests" preserve-order="true">
         <groups>
             <run>
                 <exclude name="broken.*"/>
@@ -21,6 +21,18 @@
         </groups>
         <classes>
             <class name="com.cdTester.restAssured.tests.user.UserApiDataProviderTest"/>
+        </classes>
+    </test>
+    <test name="API Response code Tests" preserve-order="true">
+        <groups>
+            <run>
+                <exclude name="broken.*"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.cdTester.restAssured.tests.tvmaze.TvApiTest"/>
+            <class name="com.cdTester.restAssured.tests.postman.PostmanApiTest"/>
+            <class name="com.cdTester.restAssured.tests.bitly.BitlyApiTest"/>
         </classes>
     </test>
     <!--
