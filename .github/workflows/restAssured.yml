@@ -137,7 +137,7 @@ jobs:
 
       - name: test step outcome
         if: always()
-        run: echo steps.tests.outcome
+        run: echo ${{steps.tests.outcome}}
 
       # Comment on PR with report link
       - name: 💬 Comment PR with report link
