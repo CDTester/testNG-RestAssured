@@ -25,7 +25,7 @@ public class TvApiTest extends BaseTest {
 
     ExtentTest step2 = extentStep("Then the status code should be 200");
     step2.info("Status code should be 200 for OK");
-    extentAssertEquals(step2, response.statusCode(), 200, "Status: " +response.statusCode());
+    extentAssertEquals(step2, response.statusCode(), 300, "Status: " +response.statusCode());
 
     ExtentTest step3 = extentStep("And the show details are returned");
     step3.info(response.body().asPrettyString());
