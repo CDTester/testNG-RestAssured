@@ -4,7 +4,7 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-  permissions:
+permissions:
     contents: write  # Needed to push to gh-pages
     pages: write
     id-token: write
