@@ -13,161 +13,163 @@ jobs:
     timeout-minutes: 60
     runs-on: ubuntu-latest
     steps:
-    # Checkout code
-    - name: 📥 Checkout code
-      uses: actions/checkout@v5
+      # Checkout code
+      - name: 📥 Checkout code
+        uses: actions/checkout@v5
 
-    # Set Up JDK 21
-    - name: ☕ Set up JDK 21
-      uses: actions/setup-java@v5
-      with:
-        java-version: '21.0.5'
-        distribution: 'temurin'
-        cache: 'maven'
+      # Set Up JDK 21
+      - name: ☕ Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21.0.5'
+          distribution: 'temurin'
+          cache: 'maven'
 
-    # Build with Maven, skipping tests
-    - name: 🔨 Build with Maven
-      run: mvn clean install -DskipTests
+      # Build with Maven, skipping tests
+      - name: 🔨 Build with Maven
+        run: mvn clean install -DskipTests
 
-    # Download previous reports (for history)
-    - name: 📚 Download previous ExtentReports
-      uses: actions/checkout@v5
-      if: always()
-      continue-on-error: true
-      with:
-        ref: gh-pages
-        path: gh-pages-history
+      # Download previous reports (for history)
+      - name: 📚 Download previous ExtentReports
+        uses: actions/checkout@v5
+        if: always()
+        continue-on-error: true
+        with:
+          ref: gh-pages
+          path: gh-pages-history
 
-    # Run Selenium tests
-    - name: 🧪 run Selenium smoke tests
-      id: tests
-      run: mvn clean test -Dtestngxml="testng_api.xml" -Dgroups=
-      continue-on-error: true
+      # Run Selenium tests
+      - name: 🧪 run Selenium smoke tests
+        id: tests
+        run: mvn clean test -Dtestngxml="testng_api.xml" -Dgroups=
+        continue-on-error: true
 
-    # Get test results summary
-    - name: 📊 Parse test results
-      if: always()
-      id: test-results
-      run: |
-        if [ -f target/surefire-reports/testng-results.xml ]; then
-          TOTAL=$(grep -oP '(?<=total=")[^"]*' target/surefire-reports/testng-results.xml || echo "0")
-          PASSED=$(grep -oP '(?<=passed=")[^"]*' target/surefire-reports/testng-results.xml || echo "0")
-          FAILED=$(grep -oP '(?<=failed=")[^"]*' target/surefire-reports/testng-results.xml || echo "0")
-          SKIPPED=$(grep -oP '(?<=skipped=")[^"]*' target/surefire-reports/testng-results.xml || echo "0")
-            
-          echo "total=$TOTAL" >> $GITHUB_OUTPUT
-          echo "passed=$PASSED" >> $GITHUB_OUTPUT
-          echo "failed=$FAILED" >> $GITHUB_OUTPUT
-          echo "skipped=$SKIPPED" >> $GITHUB_OUTPUT
-        else
-          echo "total=0" >> $GITHUB_OUTPUT
-          echo "passed=0" >> $GITHUB_OUTPUT
-          echo "failed=0" >> $GITHUB_OUTPUT
-          echo "skipped=0" >> $GITHUB_OUTPUT
-        fi
-
-    # Prepare reports directory
-    - name: 📂 Prepare reports directory
-      if: always()
-      run: |
-        mkdir -p reports
+      # Get test results summary
+      - name: 📊 Parse test results
+        if: always()
+        id: test-results
+        run: |
+          if [ -f target/surefire-reports/testng-results.xml ]; then
+            TOTAL=$(grep -oP '(?<=total=")[^"]*' target/surefire-reports/testng-results.xml || echo "0")
+            PASSED=$(grep -oP '(?<=passed=")[^"]*' target/surefire-reports/testng-results.xml || echo "0")
+            FAILED=$(grep -oP '(?<=failed=")[^"]*' target/surefire-reports/testng-results.xml || echo "0")
+            SKIPPED=$(grep -oP '(?<=skipped=")[^"]*' target/surefire-reports/testng-results.xml || echo "0")
           
-        # Copy ExtentReport
-        if [ -f test-output/extent-report.html ]; then
-          cp test-output/extent-report.html reports/index.html
-        fi
-          
-        # Copy any screenshots or attachments
-        if [ -d test-output/screenshots ]; then
-          cp -r test-output/screenshots reports/
-        fi
-          
-        # Create a timestamp file
-        echo "Report generated at: $(date)" > reports/timestamp.txt
-          
-        # Create a simple index if no report exists
-        if [ ! -f reports/index.html ]; then
-          echo "<html><body><h1>No test report generated</h1></body></html>" > reports/index.html
-        fi
-
-    # Publish to GitHub Pages
-    - name: 📦 Archive test reports
-      uses: actions/upload-artifact@v5
-      if: always()
-      with:
-        name: test-reports
-        path: |
-          test-output/
-          target/surefire-reports/
-          retention-days: 30
-
-    # Publish test reports
-    - name: 🚀 Publish test report
-      uses: peaceiris/actions-gh-pages@v4
-      if: always()
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_branch: gh-pages
-        publish_dir: ./reports
-        keep_files: false
-
-
-    # Add report to summary
-    - name: 📝 Add report link to summary
-      if: always()
-      run: |
-        echo "## 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### 📊 Test Statistics" >> $GITHUB_STEP_SUMMARY
-          echo "- **Total Tests:** ${{ steps.test-results.outputs.total }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **✅ Passed:** ${{ steps.test-results.outputs.passed }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **❌ Failed:** ${{ steps.test-results.outputs.failed }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **⏭️ Skipped:** ${{ steps.test-results.outputs.skipped }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📄 Reports" >> $GITHUB_STEP_SUMMARY
-          echo "🔗 [View ExtentReport](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/)" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-        
-          if [ "${{ steps.tests.outcome }}" == "success" ]; then
-            echo "### ✅ Status: All tests passed!" >> $GITHUB_STEP_SUMMARY
+            echo "total=$TOTAL" >> $GITHUB_OUTPUT
+            echo "passed=$PASSED" >> $GITHUB_OUTPUT
+            echo "failed=$FAILED" >> $GITHUB_OUTPUT
+            echo "skipped=$SKIPPED" >> $GITHUB_OUTPUT
           else
-            echo "### ❌ Status: Some tests failed" >> $GITHUB_STEP_SUMMARY
-            echo "Check the [detailed report](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/) for more information." >> $GITHUB_STEP_SUMMARY
+            echo "total=0" >> $GITHUB_OUTPUT
+            echo "passed=0" >> $GITHUB_OUTPUT
+            echo "failed=0" >> $GITHUB_OUTPUT
+            echo "skipped=0" >> $GITHUB_OUTPUT
           fi
-        
 
-    # Comment on PR with report link
-    - name: 💬 Comment PR with report link
-      uses: actions/github-script@v7
-      if: always() && github.event_name == 'pull_request'
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const output = `## 🧪 API Test Results
-              
-          ### 📊 Test Statistics
-          - **Total Tests:** ${{ steps.test-results.outputs.total }}
-          - **✅ Passed:** ${{ steps.test-results.outputs.passed }}
-          - **❌ Failed:** ${{ steps.test-results.outputs.failed }}
-          - **⏭️ Skipped:** ${{ steps.test-results.outputs.skipped }}
-              
-          ### 📄 Reports
-          🔗 [View ExtentReport](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/)
-             
-          **Status:** ${{ steps.tests.outcome == 'success' && '✅ All tests passed!' || '❌ Some tests failed' }}
-          `;
-              
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: output
-          });
+      # Prepare reports directory
+      - name: 📂 Prepare reports directory
+        if: always()
+        run: |
+          mkdir -p reports
+          
+          # Copy ExtentReport
+          if [ -f test-output/extent-report.html ]; then
+            cp test-output/extent-report.html reports/index.html
+          fi
+          
+          # Copy any screenshots or attachments
+          if [ -d test-output/screenshots ]; then
+            cp -r test-output/screenshots reports/
+          fi
+          
+          # Create a timestamp file
+          echo "Report generated at: $(date)" > reports/timestamp.txt
+          
+          # Create a simple index if no report exists
+          if [ ! -f reports/index.html ]; then
+            echo "<html><body><h1>No test report generated</h1></body></html>" > reports/index.html
+          fi
+
+      # Publish to GitHub Pages
+      - name: 📦 Archive test reports
+        uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: test-reports
+          path: |
+            test-output/
+            target/surefire-reports/
+            retention-days: 30
+
+      # Publish test reports
+      - name: 🚀 Publish test report
+        uses: peaceiris/actions-gh-pages@v4
+        if: always()
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: ./reports
+          keep_files: false
 
 
-    # Fail the workflow if tests failed
-    - name: 💥 Check test results
-      if: always() && steps.tests.outcome == 'failure'
-      run: |
-        echo "❌ Tests failed!"
-        exit 1
+      # Add report to summary
+      - name: 📝 Add report link to summary
+        if: always()
+        run: |
+          echo "## 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📊 Test Statistics" >> $GITHUB_STEP_SUMMARY
+            echo "- **Total Tests:** ${{ steps.test-results.outputs.total }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **✅ Passed:** ${{ steps.test-results.outputs.passed }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **❌ Failed:** ${{ steps.test-results.outputs.failed }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **⏭️ Skipped:** ${{ steps.test-results.outputs.skipped }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### 📄 Reports" >> $GITHUB_STEP_SUMMARY
+            echo "🔗 [View ExtentReport](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/)" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          
+            if [ "${{ steps.tests.outcome }}" == "success" ]; then
+              echo "### ✅ Status: All tests passed!" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "### ❌ Status: Some tests failed" >> $GITHUB_STEP_SUMMARY
+              echo "Check the [detailed report](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/) for more information." >> $GITHUB_STEP_SUMMARY
+            fi
+
+      - name: test step outcome
+        if: always()
+        run: echo steps.tests.outcome
+
+      # Comment on PR with report link
+      - name: 💬 Comment PR with report link
+        uses: actions/github-script@v7
+        if: always() && github.event_name == 'pull_request'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `## 🧪 API Test Results
+            
+            ### 📊 Test Statistics
+            - **Total Tests:** ${{ steps.test-results.outputs.total }}
+            - **✅ Passed:** ${{ steps.test-results.outputs.passed }}
+            - **❌ Failed:** ${{ steps.test-results.outputs.failed }}
+            - **⏭️ Skipped:** ${{ steps.test-results.outputs.skipped }}
+            
+            ### 📄 Reports
+            🔗 [View ExtentReport](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/)
+            
+            **Status:** ${{ steps.tests.outcome == 'success' && '✅ All tests passed!' || '❌ Some tests failed' }}
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            });
+
+      # Fail the workflow if tests failed
+      - name: 💥 Check test results
+        if: always() && steps.tests.outcome == 'failure'
+        run: |
+          echo "❌ Tests failed!"
+          exit 1
