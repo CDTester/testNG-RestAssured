@@ -141,11 +141,11 @@ given.info(api.response);
 ## JSON utility
 This project uses the Jackson library to handle JSON serialization and deserialization. The JsonUtil class provides static methods to convert Java objects to JSON strings and vice versa.
 The two main methods are:
-### deserialize(Response, Class<T>)
+### desirialize(Response, Class<T>)
 This method is used when the API response returns a single JSON object. 
 This method takes a RestAssured Response object and the Class type of the POJO model for that API as parameters and returns an instance of the specified class populated with data from the JSON response.
 
-### deserializeList(Response, Class<T>)
+### desirializeList(Response, Class<T>)
 This method is used when the API response returns an array of JSON objects. 
 This method takes a RestAssured Response object and the Class type of the POJO model for that API as parameters and returns an instance of the specified class populated with data from the JSON response.
 
@@ -209,7 +209,7 @@ The test page shows the details of each test including the steps, groups and any
 Each step can be expanded to show more details including request and response information if logged in the test.
 [![Step Details](src/main/resources/docs/extent_test_step_results.png)](src/main/resources/docs/extent_test_step_results.png)
 
-Finally, there is a tags page that shows all the groups/tags used in the suite and their results.
+Finally there is a tags page that shows all the groups/tags used in the suite and their results.
 [![Tags Summary](src/main/resources/docs/extent_tag_summary.png)](src/main/resources/docs/extent_tag_summary.png)
 
 ## 
