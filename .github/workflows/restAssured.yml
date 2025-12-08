@@ -109,7 +109,6 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_branch: gh-pages
         publish_dir: ./reports
-        destination_dir: history
         keep_files: false
 
 
