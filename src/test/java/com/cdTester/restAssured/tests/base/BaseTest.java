@@ -34,9 +34,9 @@ public class BaseTest {
 
   @BeforeTest(alwaysRun = true)
   public void setUpTest(ITestContext context) {
-    System.out.println("BeforeTest Called by " + context.getSuite().getName());
+//    System.out.println("BeforeTest Called by " + context.getSuite().getName());
     suite = context.getSuite().getXmlSuite();
-    System.out.println("BeforeTest updated suite with getXmlSuite");
+//    System.out.println("BeforeTest updated suite with getXmlSuite");
 
     if (extent == null) {  // ← Prevents duplicate initialization
       extent = ExtentManager.createInstance(
@@ -46,12 +46,12 @@ public class BaseTest {
       System.out.println("ExtentReports initialized successfully");
     }
 
-    System.out.println("╔════════════════════════════════════════╗");
+    System.out.println("╔════════════════════════════════════════");
     System.out.println("║  Suite: " + suite.getName());
     System.out.println("║  Test: " + context.getCurrentXmlTest().getName());
     System.out.println("║  Parallel: " + suite.getParallel());
     System.out.println("║  Threads: " + suite.getThreadCount());
-    System.out.println("╚════════════════════════════════════════╝");
+    System.out.println("╚════════════════════════════════════════");
 
   }
 
@@ -65,7 +65,7 @@ public class BaseTest {
 
     test.set(extentTest);
 
-    System.out.println("Starting test: " + testName);
+//    System.out.println("Starting test: " + testName);
   }
 
   @AfterMethod(alwaysRun = true)
@@ -74,7 +74,18 @@ public class BaseTest {
     extentTest.assignCategory(method.getAnnotation(Test.class).groups());
 
     String testName = method.getAnnotation(Test.class).description();
-    System.out.println("Finished test: " + testName + ";  Result: " + test.get().getStatus() + "; Duration: " +  (result.getEndMillis() - result.getStartMillis())+ "ms");
+    if (test.get().getStatus().toString().equals("Pass")) {
+      System.out.println("✅ Test Passed: " + testName + ";  Duration: " +  (result.getEndMillis() - result.getStartMillis())+ "ms");
+    }
+    if (test.get().getStatus().toString().equals("Fail")) {
+      System.out.println("❌ Test Failed: " + testName + ";  Duration: " +  (result.getEndMillis() - result.getStartMillis())+ "ms");
+    }
+    if (test.get().getStatus().toString().equals("Skip")) {
+      System.out.println("⃠  Test Skipped: " + testName + ";  Duration: " +  (result.getEndMillis() - result.getStartMillis())+ "ms");
+    }
+    if (test.get().getStatus().toString().equals("Warning")) {
+      System.out.println("❗ Test Warning: " + testName + ";  Duration: " +  (result.getEndMillis() - result.getStartMillis())+ "ms");
+    }
 
     // Clean up ThreadLocal to prevent memory leaks
     test.remove();
