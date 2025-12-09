@@ -172,7 +172,7 @@ public class TvApiTest extends BaseTest {
     ExtentTest step2 = extentStep("Then the response will have a status of 405");
     step2.info("Status code should be 405 for Method Not Allowed");
     step2.info(api.response);
-    extentAssertEquals(step2, response.statusCode(), 4405, "Status: " +response.statusCode());
+    extentAssertEquals(step2, response.statusCode(), 405, "Status: " +response.statusCode());
 
     ExtentTest step3 = extentStep("And the error name should be 'Method Not Allowed'");
     step3.info(api.response);

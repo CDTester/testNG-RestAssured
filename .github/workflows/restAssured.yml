@@ -29,15 +29,6 @@ jobs:
       - name: 🔨 Build with Maven
         run: mvn clean install -DskipTests
 
-      # Download previous reports (for history)
-      #- name: 📚 Download previous ExtentReports
-      #  uses: actions/checkout@v5
-      #  if: always()
-      #  continue-on-error: true
-      #  with:
-      #    ref: gh-pages
-      #    path: gh-pages-history
-
       # Run Selenium tests
       - name: 🧪 run Selenium smoke tests
         id: tests
@@ -132,12 +123,8 @@ jobs:
               echo "### ✅ Status: All tests passed!" >> $GITHUB_STEP_SUMMARY
             else
               echo "### ❌ Status: Some tests failed" >> $GITHUB_STEP_SUMMARY
-              echo "Check the [detailed report](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/) for more information." >> $GITHUB_STEP_SUMMARY
             fi
 
-      - name: test step outcome
-        if: always()
-        run: echo ${{steps.tests.outcome}}  ${{steps.test-results.outputs.failed}}
 
       # Comment on PR with report link
       - name: 💬 Comment PR with report link

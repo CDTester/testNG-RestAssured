@@ -22,7 +22,6 @@ public class BaseTest {
 
   @BeforeSuite(alwaysRun = true)
   public void setUpSuite() {
-//    System.out.println("BeforeSuite executed");
     // No ITestContext parameter - just basic setup
     File outputDir = new File("test-output");
     if (!outputDir.exists()) {
@@ -41,16 +40,7 @@ public class BaseTest {
             "test-output/extent-report.html",
             context.getSuite().getXmlSuite()
       );
-//      System.out.println("ExtentReports initialized successfully");
     }
-//
-//    System.out.println("╔════════════════════════════════════════");
-//    System.out.println("║  Suite: " + suite.getName());
-//    System.out.println("║  Test: " + context.getCurrentXmlTest().getName());
-//    System.out.println("║  Parallel: " + suite.getParallel());
-//    System.out.println("║  Threads: " + suite.getThreadCount());
-//    System.out.println("╚════════════════════════════════════════");
-
   }
 
   @BeforeMethod(alwaysRun = true)
