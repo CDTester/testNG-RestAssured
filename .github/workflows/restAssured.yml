@@ -30,13 +30,13 @@ jobs:
         run: mvn clean install -DskipTests
 
       # Download previous reports (for history)
-      - name: 📚 Download previous ExtentReports
-        uses: actions/checkout@v5
-        if: always()
-        continue-on-error: true
-        with:
-          ref: gh-pages
-          path: gh-pages-history
+      #- name: 📚 Download previous ExtentReports
+      #  uses: actions/checkout@v5
+      #  if: always()
+      #  continue-on-error: true
+      #  with:
+      #    ref: gh-pages
+      #    path: gh-pages-history
 
       # Run Selenium tests
       - name: 🧪 run Selenium smoke tests
@@ -99,7 +99,7 @@ jobs:
           path: |
             test-output/
             target/surefire-reports/
-            retention-days: 30
+            retention-days: 90
 
       # Publish test reports
       - name: 🚀 Publish test report
@@ -137,7 +137,7 @@ jobs:
 
       - name: test step outcome
         if: always()
-        run: echo ${{steps.tests.outcome}}
+        run: echo ${{steps.tests.outcome}}  ${{steps.test-results.outputs.failed}}
 
       # Comment on PR with report link
       - name: 💬 Comment PR with report link
@@ -169,7 +169,7 @@ jobs:
 
       # Fail the workflow if tests failed
       - name: 💥 Check test results
-        if: always() && steps.tests.outcome == 'failure'
+        if: always() && steps.test-results.outputs.failed > '0'
         run: |
           echo "❌ Tests failed!"
           exit 1
