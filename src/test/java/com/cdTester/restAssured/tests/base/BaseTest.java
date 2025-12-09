@@ -22,7 +22,7 @@ public class BaseTest {
 
   @BeforeSuite(alwaysRun = true)
   public void setUpSuite() {
-    System.out.println("BeforeSuite executed");
+//    System.out.println("BeforeSuite executed");
     // No ITestContext parameter - just basic setup
     File outputDir = new File("test-output");
     if (!outputDir.exists()) {
@@ -34,38 +34,33 @@ public class BaseTest {
 
   @BeforeTest(alwaysRun = true)
   public void setUpTest(ITestContext context) {
-//    System.out.println("BeforeTest Called by " + context.getSuite().getName());
     suite = context.getSuite().getXmlSuite();
-//    System.out.println("BeforeTest updated suite with getXmlSuite");
 
     if (extent == null) {  // ← Prevents duplicate initialization
       extent = ExtentManager.createInstance(
             "test-output/extent-report.html",
             context.getSuite().getXmlSuite()
       );
-      System.out.println("ExtentReports initialized successfully");
+//      System.out.println("ExtentReports initialized successfully");
     }
-
-    System.out.println("╔════════════════════════════════════════");
-    System.out.println("║  Suite: " + suite.getName());
-    System.out.println("║  Test: " + context.getCurrentXmlTest().getName());
-    System.out.println("║  Parallel: " + suite.getParallel());
-    System.out.println("║  Threads: " + suite.getThreadCount());
-    System.out.println("╚════════════════════════════════════════");
+//
+//    System.out.println("╔════════════════════════════════════════");
+//    System.out.println("║  Suite: " + suite.getName());
+//    System.out.println("║  Test: " + context.getCurrentXmlTest().getName());
+//    System.out.println("║  Parallel: " + suite.getParallel());
+//    System.out.println("║  Threads: " + suite.getThreadCount());
+//    System.out.println("╚════════════════════════════════════════");
 
   }
 
   @BeforeMethod(alwaysRun = true)
   public void beforeMethod(Method method, ITestContext context) {
     String testName = method.getAnnotation(Test.class).description();
-    String className = method.getDeclaringClass().getSimpleName();
     String testGroup = context.getCurrentXmlTest().getName();
 
     ExtentTest extentTest = extent.createTest(testGroup + " - " + testName);
 
     test.set(extentTest);
-
-//    System.out.println("Starting test: " + testName);
   }
 
   @AfterMethod(alwaysRun = true)
@@ -75,16 +70,16 @@ public class BaseTest {
 
     String testName = method.getAnnotation(Test.class).description();
     if (test.get().getStatus().toString().equals("Pass")) {
-      System.out.println("✅ Test Passed: " + testName + ";  Duration: " +  (result.getEndMillis() - result.getStartMillis())+ "ms");
+      System.out.println("║ ✅ Test Passed: " + testName + " (" +  (result.getEndMillis() - result.getStartMillis())+ "ms)");
     }
     if (test.get().getStatus().toString().equals("Fail")) {
-      System.out.println("❌ Test Failed: " + testName + ";  Duration: " +  (result.getEndMillis() - result.getStartMillis())+ "ms");
+      System.out.println("║ ❌ Test Failed: " + testName + " (" +  (result.getEndMillis() - result.getStartMillis())+ "ms)");
     }
     if (test.get().getStatus().toString().equals("Skip")) {
-      System.out.println("⃠  Test Skipped: " + testName + ";  Duration: " +  (result.getEndMillis() - result.getStartMillis())+ "ms");
+      System.out.println("║  ⃠  Test Skipped: " + testName + " (" +  (result.getEndMillis() - result.getStartMillis())+ "ms)");
     }
     if (test.get().getStatus().toString().equals("Warning")) {
-      System.out.println("❗ Test Warning: " + testName + ";  Duration: " +  (result.getEndMillis() - result.getStartMillis())+ "ms");
+      System.out.println("║ ❗ Test Warning: " + testName + " (" +  (result.getEndMillis() - result.getStartMillis())+ "ms)");
     }
 
     // Clean up ThreadLocal to prevent memory leaks
@@ -96,10 +91,10 @@ public class BaseTest {
     if (extent != null) {
       extent.flush();
 
-      System.out.println("\n╔════════════════════════════════════════╗");
+      System.out.println("\n╔════════════════════════════════════════════════════════════════════════════════╗");
       System.out.println("║  Suite Complete: " + suite.getName());
-      System.out.println("║  Report: test-output/extent-report.html");
-      System.out.println("╚════════════════════════════════════════╝");
+      System.out.println("║  Report: test-output/extent-report.html                                        ║");
+      System.out.println("╚════════════════════════════════════════════════════════════════════════════════╝");
     }
   }
 
@@ -122,11 +117,11 @@ public class BaseTest {
     try {
       Assert.assertEquals(String.valueOf(actual), String.valueOf(expected), errorMessage);
       if (test != null) {
-        test.pass("[✓] Assertion Passed: Expected actual value (" + actual + ") to EQUAL (" + expected + ")<br/>");
+        test.pass("[✅] Assertion Passed: Expected actual value (" + actual + ") to EQUAL (" + expected + ")<br/>");
       }
     } catch (AssertionError e) {
       if (test != null) {
-        test.fail("[✗] Assertion Failed: Expected actual value (" + actual + ") to EQUAL (" + expected + ")<br/>" + e.getMessage());
+        test.fail("[❌] Assertion Failed: Expected actual value (" + actual + ") to EQUAL (" + expected + ")<br/>" + e.getMessage());
       }
       throw e;
     }
@@ -139,11 +134,11 @@ public class BaseTest {
     try {
       Assert.assertNotEquals(String.valueOf(actual), String.valueOf(expected), errorMessage);
       if (test != null) {
-        test.pass("[✓] Assertion Passed: Expected actual value (" + actual + ") to NOT EQUAL (" + expected + ")<br/>");
+        test.pass("[✅] Assertion Passed: Expected actual value (" + actual + ") to NOT EQUAL (" + expected + ")<br/>");
       }
     } catch (AssertionError e) {
       if (test != null) {
-        test.fail("[✗] Assertion Failed: Expected actual value (" + actual + ") to NOT EQUAL (" + expected + ")<br/>" + e.getMessage());
+        test.fail("[❌] Assertion Failed: Expected actual value (" + actual + ") to NOT EQUAL (" + expected + ")<br/>" + e.getMessage());
       }
       throw e;
     }
@@ -156,11 +151,11 @@ public class BaseTest {
     try {
       Assert.assertTrue(condition, errorMessage);
       if (test != null) {
-        test.pass("[✓] Assertion Passed: Expected condition to be TRUE<br/>" + errorMessage);
+        test.pass("[✅] Assertion Passed: Expected condition to be TRUE<br/>" + errorMessage);
       }
     } catch (AssertionError e) {
       if (test != null) {
-        test.fail("[✗] Assertion Failed: Expected condition to be TRUE<br/>" + e.getMessage() + "<br/>" + e.getMessage());
+        test.fail("[❌] Assertion Failed: Expected condition to be TRUE<br/>" + e.getMessage() + "<br/>" + e.getMessage());
       }
       throw e;
     }
@@ -173,11 +168,11 @@ public class BaseTest {
     try {
       Assert.assertFalse(condition, errorMessage);
       if (test != null) {
-        test.pass("[✓] Assertion Passed: Expected condition to be FALSE<br/>" + errorMessage);
+        test.pass("[✅] Assertion Passed: Expected condition to be FALSE<br/>" + errorMessage);
       }
     } catch (AssertionError e) {
       if (test != null) {
-        test.fail("[✗] Assertion Failed: Expected condition to be FALSE<br/>" + e.getMessage() + "<br/>" + errorMessage);
+        test.fail("[❌] Assertion Failed: Expected condition to be FALSE<br/>" + e.getMessage() + "<br/>" + errorMessage);
       }
       throw e;
     }
@@ -190,11 +185,11 @@ public class BaseTest {
     try {
       Assert.assertNotNull(object, errorMessage);
       if (test != null) {
-        test.pass("[✓] Assertion Passed: Expected object to NOT be null <br/>" + errorMessage);
+        test.pass("[✅] Assertion Passed: Expected object to NOT be null <br/>" + errorMessage);
       }
     } catch (AssertionError e) {
       if (test != null) {
-        test.fail("[✗] Assertion Failed: Expected object to NOT be null <br/>" + e.getMessage() + "<br/>" + object.toString());
+        test.fail("[❌] Assertion Failed: Expected object to NOT be null <br/>" + e.getMessage() + "<br/>" + object.toString());
       }
       throw e;
     }
@@ -207,11 +202,11 @@ public class BaseTest {
     try {
       Assert.assertNotNull(object, errorMessage);
       if (test != null) {
-        test.pass("[✓] Assertion Passed: Expected object to be null <br/>" + object.toString());
+        test.pass("[✅] Assertion Passed: Expected object to be null <br/>" + object.toString());
       }
     } catch (AssertionError e) {
       if (test != null) {
-        test.fail("[✗] Assertion Failed: Expected object to be null <br/>" + e.getMessage() + "<br/>" + object.toString());
+        test.fail("[❌] Assertion Failed: Expected object to be null <br/>" + e.getMessage() + "<br/>" + object.toString());
       }
       throw e;
     }

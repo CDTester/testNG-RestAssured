@@ -27,7 +27,6 @@ public class BitlyApiTest extends BaseTest {
     step4.info(api.response);
     String errMessage = JsonUtils.deserialize(response, JsonNode.class).get("message").asText();
     extentAssertEquals(step4, errMessage, "FORBIDDEN", "Body: " + response.body());
-
   }
 
 

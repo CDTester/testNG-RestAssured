@@ -8,13 +8,12 @@ import com.cdTester.restAssured.utils.JsonUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.restassured.response.Response;
 import org.testng.annotations.Test;
-
 import java.util.HashMap;
 import java.util.Map;
 
 public class TvApiTest extends BaseTest {
 
-  @Test(groups = {"smoke", "tvApi", "get"}, priority = 1, description = "[200] GET shows/82 ")
+  @Test(groups = {"smoke", "tvApi", "get"}, priority = 1, description = "[200] GET shows/82")
   public void getShow() {
     ApiClient api = new ApiClient(config, "tv");
 
@@ -25,7 +24,7 @@ public class TvApiTest extends BaseTest {
 
     ExtentTest step2 = extentStep("Then the status code should be 200");
     step2.info("Status code should be 200 for OK");
-    extentAssertEquals(step2, response.statusCode(), 300, "Status: " +response.statusCode());
+    extentAssertEquals(step2, response.statusCode(), 200, "Status: " +response.statusCode());
 
     ExtentTest step3 = extentStep("And the show details are returned");
     step3.info(response.body().asPrettyString());
@@ -75,7 +74,6 @@ public class TvApiTest extends BaseTest {
     step4.info(api.response);
     String errMessage = JsonUtils.deserialize(response, JsonNode.class).get("message").asText();
     extentAssertEquals(step4, errMessage, "Missing required parameters: q", "Body: " + response.body());
-
   }
 
   @Test(groups = {"smoke", "tvApi", "get"}, priority = 3, description = "[400] GET Bad Request response when the query parameter is missing")
@@ -100,7 +98,6 @@ public class TvApiTest extends BaseTest {
     step4.info(api.response);
     String errMessage = JsonUtils.deserialize(response, JsonNode.class).get("message").asText();
     extentAssertEquals(step4, errMessage, "Missing required parameters: q", "Body: " + response.body());
-
   }
 
 
@@ -132,7 +129,6 @@ public class TvApiTest extends BaseTest {
     step5.info(api.response);
     String prevName = JsonUtils.deserialize(response, JsonNode.class).get("previous").get("name").asText();
     extentAssertEquals(step5, prevName, "Invalid Route", "Body: " + response.body().asPrettyString());
-
   }
 
 
@@ -159,7 +155,6 @@ public class TvApiTest extends BaseTest {
     step4.info(api.response);
     String errMessage = JsonUtils.deserialize(response, JsonNode.class).get("message").asText();
     extentAssertEquals(step4, errMessage, "", "Body: " + response.body().asPrettyString());
-
   }
 
 
@@ -177,7 +172,7 @@ public class TvApiTest extends BaseTest {
     ExtentTest step2 = extentStep("Then the response will have a status of 405");
     step2.info("Status code should be 405 for Method Not Allowed");
     step2.info(api.response);
-    extentAssertEquals(step2, response.statusCode(), 405, "Status: " +response.statusCode());
+    extentAssertEquals(step2, response.statusCode(), 4405, "Status: " +response.statusCode());
 
     ExtentTest step3 = extentStep("And the error name should be 'Method Not Allowed'");
     step3.info(api.response);
@@ -188,8 +183,6 @@ public class TvApiTest extends BaseTest {
     step4.info(api.response);
     String errMessage = JsonUtils.deserialize(response, JsonNode.class).get("message").asText();
     extentAssertEquals(step4, errMessage, "Method Not Allowed. This URL can only handle the following request methods: GET, HEAD.", "Body: " + response.body().asPrettyString());
-
   }
-
 
 }

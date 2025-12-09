@@ -169,7 +169,7 @@ jobs:
 
       # Fail the workflow if tests failed
       - name: 💥 Check test results
-        if: always() && steps.test-results.outputs.failed > '0'
+        if: always() && steps.tests.outcome == 'failure'
         run: |
           echo "❌ Tests failed!"
           exit 1

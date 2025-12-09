@@ -3,6 +3,11 @@
 <suite name="API Test Suite" parallel="methods" thread-count="3">
     <parameter name="build" value="1.0"/>
     <parameter name="reportName" value="API"/>
+
+    <listeners>
+        <listener class-name="com.cdTester.listeners.TestListener"/>
+    </listeners>
+
     <test name="User API Tests" preserve-order="true">
         <groups>
             <run>

@@ -15,11 +15,13 @@ public class ApiClient {
   public String request;
   public String response;
   public String environment;
+  public String baseURL;
 
   public ApiClient(ConfigManager config, String api) {
     this.api = api;
     this.config = config;
     RestAssured.baseURI = config.getBaseUrl(api);
+    this.baseURL = RestAssured.baseURI;
     RestAssured.enableLoggingOfRequestAndResponseIfValidationFails();
     this.environment = config.getEnvironment();
   }
